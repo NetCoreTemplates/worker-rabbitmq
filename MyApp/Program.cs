@@ -30,7 +30,9 @@ namespace MyApp
                     {
                         ConfigureAppHost = host =>
                         {
-                            var mqServer = new RabbitMqServer(hostContext.Configuration.GetConnectionString("RabbitMq") ?? "localhost:5672");
+                            var mqServer = new RabbitMqServer(hostContext.Configuration.GetConnectionString("RabbitMq")) {
+                                DisablePublishingToOutq = true,
+                            };
                             mqServer.RegisterHandler<Hello>(host.ExecuteMessage);
                             host.Register<IMessageService>(mqServer);
                         }
