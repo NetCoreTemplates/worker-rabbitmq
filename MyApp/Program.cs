@@ -1,14 +1,9 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using ServiceStack;
 using ServiceStack.Messaging;
 using ServiceStack.RabbitMq;
-using ServiceStack.Testing;
 using MyApp.ServiceModel;
 
 namespace MyApp
@@ -26,7 +21,7 @@ namespace MyApp
             Host.CreateDefaultBuilder(args)
                 .ConfigureServices((hostContext, services) =>
                 {
-                    AppHost = new BasicAppHost(typeof(MyService).Assembly)
+                    AppHost = new GenericAppHost(typeof(MyService).Assembly)
                     {
                         ConfigureAppHost = host =>
                         {
