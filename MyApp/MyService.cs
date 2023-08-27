@@ -1,16 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using MyApp.ServiceModel;
+﻿using MyApp.ServiceModel;
 using ServiceStack;
 
-namespace MyApp
+namespace MyApp;
+
+public class MyService : Service
 {
-    public class MyService : Service
+    public object Any(Hello request) => new HelloResponse
     {
-        public object Any(Hello request) => new HelloResponse
-        {
-            Result = $"Hello, {request.Name}!"
-        };
-    }
+        Result = $"Hello, {request.Name}!"
+    };
 }

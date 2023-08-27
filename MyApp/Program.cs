@@ -1,40 +1,35 @@
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using ServiceStack;
 using ServiceStack.Messaging;
 using ServiceStack.RabbitMq;
 using MyApp.ServiceModel;
 
-namespace MyApp
+namespace MyApp;
+
+public class Program
 {
-    public class Program
+    public static void Main(string[] args)
     {
-        public static ServiceStackHost AppHost { get; set; }
-
-        public static void Main(string[] args)
-        {
-            CreateHostBuilder(args).Build().Run();
-        }
-
-        public static IHostBuilder CreateHostBuilder(string[] args) =>
-            Host.CreateDefaultBuilder(args)
-                .ConfigureServices((hostContext, services) =>
+        CreateHostBuilder(args)
+            .Build()
+            .UseServiceStack(new GenericAppHost(typeof(MyService).Assembly)
+            {
+                ConfigureAppHost = host =>
                 {
-                    AppHost = new GenericAppHost(typeof(MyService).Assembly)
-                    {
-                        ConfigureAppHost = host =>
-                        {
-                            var mqServer = new RabbitMqServer(hostContext.Configuration.GetConnectionString("RabbitMq")) {
-                                DisablePublishingToOutq = true,
-                            };
-                            mqServer.RegisterHandler<Hello>(host.ExecuteMessage);
-                            host.Register<IMessageService>(mqServer);
-                        }
-                    }.Init();
-
-                    services.AddSingleton(AppHost.Resolve<IMessageService>());
-                    services.AddHostedService<MqWorker>();
-                });
+                    var mqServer = host.Resolve<IMessageService>();
+                    mqServer.RegisterHandler<Hello>(host.ExecuteMessage);
+                }
+            })
+            .Run();
     }
+
+    static IHostBuilder CreateHostBuilder(string[] args) =>
+        Host.CreateDefaultBuilder(args)
+            .ConfigureServices((hostContext, services) =>
+            {
+                services.AddSingleton<IMessageService>(
+                    new RabbitMqServer(hostContext.Configuration.GetConnectionString("RabbitMq")) {
+                        DisablePublishingToOutq = true,
+                    });
+                services.AddHostedService<MqWorker>();
+            });
 }
