@@ -5,6 +5,7 @@
 
 # Custom
 dist/
+App_Data/
 
 # User-specific files
 *.suo
