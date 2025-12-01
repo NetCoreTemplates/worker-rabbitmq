@@ -13,8 +13,7 @@ public class Program
             .Build()
             .UseServiceStack(new GenericAppHost(typeof(MyService).Assembly)
             {
-                ConfigureAppHost = host =>
-                {
+                ConfigureAppHost = host => {
                     var mqServer = host.Resolve<IMessageService>();
                     mqServer.RegisterHandler<Hello>(host.ExecuteMessage);
                 }
@@ -24,10 +23,10 @@ public class Program
 
     static IHostBuilder CreateHostBuilder(string[] args) =>
         Host.CreateDefaultBuilder(args)
-            .ConfigureServices((hostContext, services) =>
+            .ConfigureServices((context, services) =>
             {
                 services.AddSingleton<IMessageService>(
-                    new RabbitMqServer(hostContext.Configuration.GetConnectionString("RabbitMq")) {
+                    new RabbitMqServer(context.Configuration.GetConnectionString("RabbitMq")) {
                         DisablePublishingToOutq = true,
                     });
                 services.AddHostedService<MqWorker>();
